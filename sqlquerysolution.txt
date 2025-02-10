@@ -1,0 +1,72 @@
+UPDATE Admissions
+SET attending_doctor_id = 29
+WHERE attending_doctor_id = 3;
+
+UPDATE Admissions
+SET patient_id = 4
+WHERE patient_id = 35;
+
+SELECT DISTINCT 
+    'Doctors with Admissions' AS Query_Type, 
+    d.doctor_id, 
+    d.first_name, 
+    d.last_name, 
+    d.specialty, 
+    NULL AS patient_id, 
+    NULL AS gender, 
+    NULL AS birth_date, 
+    NULL AS city, 
+    NULL AS province_id, 
+    NULL AS allergies, 
+    NULL AS height, 
+    NULL AS weight
+FROM Doctors d
+JOIN Admissions a
+ON d.doctor_id = a.attending_doctor_id
+
+UNION ALL
+
+SELECT DISTINCT 
+    'Doctors without Admissions' AS Query_Type, 
+    d.doctor_id, 
+    d.first_name, 
+    d.last_name, 
+    d.specialty, 
+    NULL AS patient_id, 
+    NULL AS gender, 
+    NULL AS birth_date, 
+    NULL AS city, 
+    NULL AS province_id, 
+    NULL AS allergies, 
+    NULL AS height, 
+    NULL AS weight
+FROM Doctors d
+WHERE d.doctor_id NOT IN (
+    SELECT DISTINCT attending_doctor_id
+    FROM Admissions
+    WHERE attending_doctor_id IS NOT NULL
+)
+
+UNION ALL
+
+SELECT DISTINCT 
+    'Patients with Missing Doctor' AS Query_Type, 
+    NULL AS doctor_id, 
+    NULL AS first_name, 
+    NULL AS last_name, 
+    NULL AS specialty, 
+    p.patient_id, 
+    p.gender, 
+    p.birth_date, 
+    p.city, 
+    p.province_id, 
+    p.allergies, 
+    p.height, 
+    p.weight
+FROM Patients p
+JOIN Admissions a
+ON p.patient_id = a.patient_id
+WHERE a.attending_doctor_id IS NULL
+   OR a.attending_doctor_id NOT IN (SELECT doctor_id FROM Doctors);
+
+
